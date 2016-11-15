@@ -8,6 +8,21 @@ defmodule Rumbl.VideoController do
 
   plug :load_categories when action in [:new, :create, :edit, :update]
 
+  def action(conn, _) do
+    apply(__MODULE__, action_name(conn),
+          [conn, conn.params,
+           conn.assigns.current_user])
+  end
+
+  defp load_categories(conn, _) do
+    query =
+      Category
+      |> Category.alphabetical
+      |> Category.names_and_ids
+    categories = Repo.all query
+    assign(conn, :categories, categories)
+  end
+
   def index(conn, _params, user) do
     videos = Repo.all(user_videos(user))
     render(conn, "index.html", videos: videos)
@@ -74,22 +89,8 @@ defmodule Rumbl.VideoController do
     |> redirect(to: video_path(conn, :index))
   end
 
-  def action(conn, _) do
-    apply(__MODULE__, action_name(conn),
-          [conn, conn.params,
-           conn.assigns.current_user])
-  end
-
   defp user_videos(user) do
     assoc(user, :videos)
   end
 
-  defp load_categories(conn, _) do
-    query =
-      Category
-      |> Category.alphabetical
-      |> Category.names_and_ids
-    categoires = Repo.all query
-    assign(conn, :categories, categories)
-  end
 end

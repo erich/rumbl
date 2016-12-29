@@ -30,7 +30,7 @@ defmodule Rumbl.ModelCase do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(Rumbl.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.restart_test_transaction(Rumbl.Repo, [])
+      Ecto.Adapters.SQL.Sandbox.mode(Rumbl.Repo, {:shared, self()})
     end
 
     :ok
